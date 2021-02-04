@@ -1,6 +1,6 @@
 {
   "name": "use-reaction",
-  "version": "1.0.0",
+  "version": "1.0.6",
   "description": "react modulized store manage framework",
   "main": "lib/useReaction.js",
   "typings": "lib/useReaction.d.ts",
