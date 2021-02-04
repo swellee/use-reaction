@@ -1,0 +1,53 @@
+{
+  "name": "use-reaction",
+  "version": "1.0.0",
+  "description": "react modulized store manage framework",
+  "main": "lib/useReaction.js",
+  "typings": "lib/useReaction.d.ts",
+  "files": [
+    "lib/useReaction.js",
+    "lib/useReaction.d.ts"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "react",
+    "state",
+    "hook",
+    "reaction",
+    "useReaction",
+    "module",
+    "modulize"
+  ],
+  "scripts": {
+    "start": "craco start",
+    "build": "tsc src/lib/useReaction.tsx -d --jsx react --esModuleInterop true --outDir ./lib",
+    "push": "npm version patch --no-git-tag-version & npm publish"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@craco/craco": "^6.1.0",
+    "@types/jest": "24.0.18",
+    "@types/node": "12.7.5",
+    "@types/react": "^16.9.2",
+    "@types/react-dom": "^16.9.0",
+    "react": "^16.9.0",
+    "react-dom": "^16.9.0",
+    "react-scripts": "^4",
+    "typescript": "^3.6.3"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
