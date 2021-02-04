@@ -63,7 +63,18 @@ npm i use-reaction
                    store.a++
                }}>Increse a</button>
 
-               <button onClick={e => actionIncreseMulti(2)}>Increse a & b by action</button>
+               <button onClick={e => {
+                   actionIncreseMulti(2)
+                   /** 
+                    * action return a promise, 
+                    * so if you want to do sth after a time-cost action,
+                    * you can try like this:
+                    * actionIncreseMulti(2).then(_ => {
+                    *    do sth after the current action done
+                    *    ...
+                    * })
+                   */
+                   }}>Increse a & b by action</button>
                <button onClick={
                    /** 
                     * when call useModel, the const model was just used to clearify model structor,

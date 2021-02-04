@@ -106,7 +106,7 @@ export function useProvider(): React.FC {
  */
 export function useModel<M extends Model = Model>(m: M): {
     store: M
-    dispatch: (reducer: Reducer<M>, payload?: any) => (payload?: any) => void
+    dispatch: (reducer: Reducer<M>, payload?: any) => (payload?: any) => Promise<void>
 } {
     const gStore = global.models
 

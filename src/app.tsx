@@ -50,7 +50,13 @@ function SubPageB(props: KV) {
             <div>
                 model_b.e's value is {store.e}
             </div>
-            <button onClick={actionB}>Increse e by delayed action</button>
+            <button onClick={e => {
+                actionB().then(_ => {
+                    console.log('actionB done!')
+                    // or do other things after this actionB done
+                    // ...
+                })
+            }}>Increse e by delayed action</button>
             <h6>see my child compenent below:</h6>
             {props.children}
         </div>
