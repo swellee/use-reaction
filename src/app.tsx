@@ -1,8 +1,10 @@
 import React from 'react'
-import { KV, useModel, useProvider, useReaction } from "./lib/useReaction";
+import { KV, useLoading, useModel, useProvider, useReaction } from "./lib/useReaction";
 import { actionTestA, model_a } from './models/model_a';
-import { actionTestB, model_b } from './models/model_b';
-
+import { actionJustBackData, actionTestB, model_b } from './models/model_b';
+import {Button, Form, Input, Spin} from 'antd'
+import Password from 'antd/lib/input/Password';
+import 'antd/dist/antd.css'
 export const App: React.FC = () => {
     /**init use-reaction */
     useReaction()
@@ -21,24 +23,44 @@ export const App: React.FC = () => {
 
 //--------examples of how to use---------
 function SubPageA(props?: KV) {
+    const loading = useLoading()
     const { store, dispatch } = useModel(model_a)
-    const actionIncreseMulti = dispatch(actionTestA)
+    const {dispatch: dispatchB} = useModel(model_b)
 
+    const actionIncreseMulti = dispatch(actionTestA)
+    const testJustback = dispatchB(actionJustBackData)
+
+    const onfinish = (values: any) => {
+        console.log('values', values)
+        actionIncreseMulti(2)
+    }
     return (
+        <Spin spinning={loading}>
+
         <div className="page page-a">
             <h3>page A</h3>
             <div>
-                model_a.a's value is {store.a}
+                model_a value is {store.a}
             </div>
+            <Form onFinish={onfinish}>
+                <Form.Item label="email" name="email"><Input /></Form.Item>
+                <Form.Item label="password" name="password"><Password /></Form.Item>
+                <Button htmlType="submit">increase A by action</Button>
+            </Form>
             <button onClick={e => {
                 /**
                 * store's first-level prop is interactive,
                 * so you can modify it directly
                 */
                 store.a++
-            }}>Increse a's value</button>
-            <button onClick={e => actionIncreseMulti(2)}>Increse a & b by action</button>
+            }}>Increse a</button>
+            <button onClick={ async e => {
+               const backed = await testJustback(',world:' + Date.now())
+               alert(backed)
+            }}>action just back data</button>
         </div>
+        </Spin>
+
     )
 }
 function SubPageB(props: KV) {
@@ -51,12 +73,8 @@ function SubPageB(props: KV) {
                 model_b.e's value is {store.e}
             </div>
             <button onClick={e => {
-                actionB().then(_ => {
-                    console.log('actionB done!')
-                    // or do other things after this actionB done
-                    // ...
-                })
-            }}>Increse e by delayed action</button>
+                actionB('do action with loading', true)
+            }}>Increse b-e with loading</button>
             <h6>see my child compenent below:</h6>
             {props.children}
         </div>
