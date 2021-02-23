@@ -1,13 +1,12 @@
-import {ReducerParam } from "../lib/useReaction"
+import { Action } from "../lib/useReaction"
+
 /**
  * it's better to define a interface for your model
  */
 interface ModelA {
     a: number
-    b: number,
-    c: number
-    d: {
-        dd: number
+    aa: {
+        aa: number
     }
 }
 
@@ -16,10 +15,8 @@ interface ModelA {
  */
 export const model_a: ModelA = {
     a: 1,
-    b: 1,
-    c: 1,
-    d: {
-        dd: 1
+    aa: {
+        aa: 1
     },
 }
 
@@ -28,15 +25,16 @@ export const model_a: ModelA = {
  * 
  * @param param0 
  */
-export const actionTestA = ({payload, store}: ReducerParam<ModelA>) => {
+export const actionTestA: Action<ModelA> = ({ payload, store }) => {
     console.log('do action test, get payload:', payload)
 
     // the next-line will cause error, b/c in action, the store's prop can't be modified directly
     // store.a = 6
-    
+
     // return changed part
-   return {
-       a: store.a + payload,
-       b: store.b + payload
-   }
+    return {
+        a: store.a + payload,
+        aa: {aa: store.aa.aa + payload},
+        sth: 'hello world' // Note: this field will be ignored and won't be added into model_a b/c the field 'sth' is not defined in ModelA !!!
+    }
 }

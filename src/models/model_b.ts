@@ -1,11 +1,10 @@
-import { justBack, ReducerParam } from "../lib/useReaction";
+import { Action, justBack } from "../lib/useReaction";
 
 /**
  * define a const of model
  */
 export const model_b = {
-    e: 1,
-    f: 1,
+    b: 1
 }
 
 /**
@@ -13,7 +12,7 @@ export const model_b = {
  * can be normal function or Promise-like function
  * @param param0 
  */
-export async function actionTestB({ store }: ReducerParam<typeof model_b>) {
+export const actionTestB: Action<typeof model_b> = async function ({ store }) {
     console.log('do action test for B')
 
     console.log('doing sth may cost time...')
@@ -26,10 +25,10 @@ export async function actionTestB({ store }: ReducerParam<typeof model_b>) {
 
     // return the changed part
     return {
-        e: store!.e + 5
+        b: store.b + 5,
     }
 }
 
-export async function actionJustBackData({ payload }: any) {
+export const actionJustBackData: Action<typeof model_b> = async function({ payload }) {
     return justBack('hello' + payload)
 }
