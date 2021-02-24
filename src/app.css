@@ -1,0 +1,7 @@
+#root  {
+    padding: 50px 100px;
+}
+#root .page {
+    margin: 10px auto;
+    background-color: bisque;
+}
