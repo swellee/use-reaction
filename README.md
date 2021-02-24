@@ -2,6 +2,8 @@
 react modulized store manager framework based on react hooks.
 easy to manage your app's states in modulized way.
 small package size(about 100 lines only)
+# repo
+here is [Repo](https://github.com/swellee/use-reaction), If you like this framework, consider give me a star!
 # install
 ```shell
 npm i use-reaction
@@ -104,10 +106,10 @@ npm i use-reaction
    2. `doAction` - the action trigger, accept 3 params, these are:
       1. ***action*** - the function (normal or PromiseLike), which can return changed part of model's Interface, or return nothing, or return `justBack(data)` to avoid modify store
       2. ***payload*** - the paload which will pass to the ***action*** function,
-      3. ***showLoading*** - whether modify global's loading flag, see `useLoading`
+      3. ***showLoading*** - whether showloading when process this action, you can pass param ***model*** or ***global*** and, `model` means change loading state for this model-store, `global` means change loading for global, default undefined, see `useLoading`
       4. Note: the doAction is an async function, and will return what the ***action*** function's return-data, so you can get the result-data of the ***action*** function
    3. `resetModel` - the trigger for reset the given model to its initial state when it's defined
-4. `useLoading` - retrieve the global loading flag(true/false), this flag will change when call `doAction(someAction, payload, true)`
+4. `useLoading` - retrieve the loading flag(true/false) of given model-instance, if not provide model, then it will return the global loading flag, this flag will change when call `doAction(someAction, payload, 'model' | 'global')`
 5. `justBack` - sometimes, your action don't want to modify the model store, just want to process sth and return the data back to UI level, then you can use this api to wrap your return data, so that the return data of your action won't trigger modify and won't trigger rerender, like this:
     ```typescript
     export const actionJustBackData: Action<typeof model_b> = async function({ payload }) {

@@ -25,12 +25,19 @@ export const model_a: ModelA = {
  * 
  * @param param0 
  */
-export const actionTestA: Action<ModelA> = ({ payload, store }) => {
+export const actionTestA: Action<ModelA> = async ({ payload, store }) => {
     console.log('do action test, get payload:', payload)
 
     // the next-line will cause error, b/c in action, the store's prop can't be modified directly
     // store.a = 6
 
+    console.log('doing sth may cost time...')
+    await new Promise(resolve => {
+        setTimeout(() => {
+            console.log('done.')
+            resolve('')
+        }, 2000);
+    })
     // return changed part
     return {
         a: store.a + payload,

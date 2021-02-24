@@ -11,6 +11,7 @@ const global: any = {}
 /** call this at the top line of your app to initialize */
 export function useReaction() {
     global.loading_call = 0
+    global.model_loading_call = {}
     global.ctx = createContext(null)
     global.provider = function Provider(props: KV) {
         const [store, dispatch] = useReducer((_: any, m: any) => m, { [LOADING_TAG]: false })
@@ -26,7 +27,7 @@ export function useModel<M extends Model = Model>(model: M): {
     /**the store of this model */
     store: M
     /**the function to trigger action for this model, pls Note that it won't affect other models */
-    doAction: (action: Action<M>, payload?: any, showLoading?: boolean) => Promise<Partial<M>> | Promise<void>
+    doAction: (action: Action<M>, payload?: any, showLoading?: 'model' | 'global') => Promise<Partial<M>> | Promise<void>
     /**the function to reset model to it's initial state when you defined it */
     resetModel: () => void
 } {
@@ -38,21 +39,38 @@ export function useModel<M extends Model = Model>(model: M): {
         store[modelKey] = m
     }
     const mStore = store[modelKey]
-
-    async function doAction(action: Action<M>, payload: any = undefined, showLoading = false) {
-        if (showLoading) {
+    /**
+     * action trigger
+     * @param action the action-like function
+     * @param payload the payload which will pass to action-function
+     * @param showLoading whether showloading, possible value is 'model' | 'global' | true, default=undefined, and true is same with 'global', 'model' means only change the loading flag for this model
+     */
+    async function doAction(action: Action<M>, payload: any = undefined, showLoading?: 'model' | 'global') {
+        if (showLoading === 'global') {
             global.loading_call++
             if (!store[LOADING_TAG]) {
                 dispatch({ ...store, [LOADING_TAG]: true })
             }
+        } else if (showLoading === 'model') {
+            global.model_loading_call[modelKey] = global.model_loading_call[modelKey] || 0
+            global.model_loading_call[modelKey]++
+            if (!mStore[LOADING_TAG]) {
+                dispatch({ ...store, [modelKey]: { ...mStore, [LOADING_TAG]: true } })
+            }
         }
         const changed = await action({ payload, store: Object.freeze({ ...mStore }) })
 
-        if (showLoading) {
+        if (showLoading === 'global') {
             global.loading_call--
             if (global.loading_call <= 0) {
                 global.loading_call = 0
                 dispatch({ ...store, [LOADING_TAG]: false })
+            }
+        } else if (showLoading === 'model') {
+            global.model_loading_call[modelKey]--
+            if (global.model_loading_call[modelKey] <= 0) {
+                global.model_loading_call[modelKey] = 0
+                dispatch({ ...store, [modelKey]: { ...mStore, [LOADING_TAG]: false } })
             }
         }
 
@@ -85,9 +103,12 @@ export function useModel<M extends Model = Model>(model: M): {
         resetModel: () => doAction(() => m)
     }
 }
-/**get the global loading state */
-export function useLoading() {
+/**get the loading state of given model, if don't provide model param, then will return the global loading state */
+export function useLoading<M extends Model>(m?: M): boolean {
     const { store } = useContext(global.ctx)
+    if (m) {
+        return m[MODEL_KEY_TAG] ? Boolean(store[m[MODEL_KEY_TAG]][LOADING_TAG]) : false
+    }
     return store[LOADING_TAG]
 }
 /**
