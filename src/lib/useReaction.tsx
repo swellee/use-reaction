@@ -7,16 +7,17 @@ const LOADING_TAG = 'USE::REACTION::BUILTIN:LOADING'
 const MODEL_KEY_PRE = 'USE::REACTION::MODULE::'
 const MODEL_KEY_TAG = '__MODULE__'
 const BACK_TAG = 'USE::REACTION::JUSTBACK::'
-const global: any = {}
-/** call this at the top line of your app to initialize */
-export function useReaction() {
+const global: any = { [LOADING_TAG]: false }
+/** call this at the top line of your app to initialize, provide a 'true' param if you want to enable devtool, Note: it's better not enable devtool for your production mode */
+export function useReaction(enableDev?: boolean) {
     global.loading_call = 0
     global.model_loading_call = {}
     global.ctx = createContext(null)
     global.provider = function Provider(props: KV) {
-        const [store, dispatch] = useReducer((_: any, m: any) => m, { [LOADING_TAG]: false })
+        const [store, dispatch] = useReducer((_: any, m: any) => m, global)
         return React.createElement(global.ctx.Provider, { value: { store, dispatch } }, props.children);
     }
+    if (enableDev) (window as any)['::USE::REACTION::DEV::INTERFACE'] = global
 }
 /** call this to get the root Provider to wrap your app */
 export function useProvider() {

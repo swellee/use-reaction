@@ -16,7 +16,6 @@ export const App: React.FC = () => {
     /**render */
     return <Provider>
         <GlobalLoading>
-
             <SubPageA />
             <SubPageB>
                 <CompC />
@@ -90,7 +89,6 @@ function SubPageB(props: KV) {
 function CompC() {
     const { store, resetModel } = useModel(model_a)
     const { store: storeB, resetModel: resetModelB } = useModel(model_b)
-
     return <div className="comp">
         <p>the values in model_a:</p>
         <ul>
