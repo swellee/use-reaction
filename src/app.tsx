@@ -8,7 +8,7 @@ import 'antd/dist/antd.css'
 import './app.css'
 export const App: React.FC = () => {
     /**init use-reaction */
-    useReaction()
+    useReaction(true)
 
     /**obtain Provider */
     const Provider = useProvider()

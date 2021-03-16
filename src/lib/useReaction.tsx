@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useReducer } from "react"
 export interface KV { [k: string]: any }
-export interface Model extends KV { }
+export interface Model extends KV { NAME?: string }
 export type Action<M> = (param: { payload?: any, store: Readonly<M> }) => void | Partial<M> | Promise<Partial<M>> | Promise<void>
 
 const LOADING_TAG = 'USE::REACTION::BUILTIN:LOADING'
@@ -13,11 +13,11 @@ export function useReaction(enableDev?: boolean) {
     global.loading_call = 0
     global.model_loading_call = {}
     global.ctx = createContext(null)
+    enableDev && document && window.postMessage({ __USE_REACTION_DEV_ENABLED__: true }, '*')
     global.provider = function Provider(props: KV) {
         const [store, dispatch] = useReducer((_: any, m: any) => m, global)
         return React.createElement(global.ctx.Provider, { value: { store, dispatch } }, props.children);
     }
-    if (enableDev) (window as any)['::USE::REACTION::DEV::INTERFACE'] = global
 }
 /** call this to get the root Provider to wrap your app */
 export function useProvider() {
@@ -36,7 +36,7 @@ export function useModel<M extends Model = Model>(model: M): {
     const m: any = model
     let modelKey = m[MODEL_KEY_TAG]
     if (!modelKey) {
-        modelKey = m[MODEL_KEY_TAG] = MODEL_KEY_PRE + Math.random().toString().split('.')[1] + Date.now()
+        modelKey = m[MODEL_KEY_TAG] = MODEL_KEY_PRE + m.NAME || (Math.random().toString().split('.')[1] + Date.now())
         store[modelKey] = m
     }
     const mStore = store[modelKey]
@@ -75,14 +75,10 @@ export function useModel<M extends Model = Model>(model: M): {
             }
         }
 
-        if (!changed) {
-            // action finish without return data, so won't trigger rerender
-            return
-        }
+        if (!changed) return // action finish without return data, so won't trigger rerender
 
         if (changed[BACK_TAG]) {
-            // coder just want to return the data to thier UI-LEVEL, so won't trigger rerender
-            return changed[BACK_TAG] as any
+            return changed[BACK_TAG] as any // coder just want to return the data to thier UI-LEVEL, so won't trigger rerender
         }
 
         // limit changed data only contains keys already exist in model
@@ -93,11 +89,11 @@ export function useModel<M extends Model = Model>(model: M): {
             }
         }
         // update model
-        dispatch({ ...store, [m[MODEL_KEY_TAG]]: mStoreCopy })
-
-        // after rerender, normally return the action's result data to UI-LEVEL 
-        return changed
+        dispatch({ ...store, [m[MODEL_KEY_TAG]]: mStoreCopy });// semicon here to avoid treat nextline as the paramter :D
+        (window as any)['__USE_REACTION_DEV_EXTENTION__'] && (window as any)['__USE_REACTION_DEV_EXTENTION__'](store, mStoreCopy, changed)
+        return changed // after rerender, normally return the action's result data to UI-LEVEL 
     }
+    (window as any)['__USE_REACTION_DEV_EXTENTION__'] && (window as any)['__USE_REACTION_DEV_EXTENTION__'](store)
     return {
         store: mStore,
         doAction,
@@ -116,6 +112,4 @@ export function useLoading<M extends Model>(m?: M): boolean {
  * use this in your action function to just return data without modify model, won't trigger rerender
  * @param data the data to return outter
  */
-export function justBack(data: any) {
-    return { [BACK_TAG]: data } as any
-}
+export const justBack = (data: any) => ({ [BACK_TAG]: data } as any)

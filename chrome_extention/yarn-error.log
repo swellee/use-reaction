@@ -1,0 +1,52 @@
+Arguments: 
+  /opt/apps/nodejs/bin/node /opt/apps/nodejs/bin/yarn
+
+PATH: 
+  /home/will/bin:/usr/local/bin:/opt/apps/nodejs/bin:/home/will/bin:/usr/local/bin:/opt/apps/nodejs/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games:/sbin:/usr/sbin
+
+Yarn version: 
+  1.22.10
+
+Node version: 
+  12.20.1
+
+Platform: 
+  linux x64
+
+Trace: 
+  Error: https://registry.npmjs.org/react: tunneling socket could not be established, cause=Client network socket disconnected before secure TLS connection was established
+      at ClientRequest.onError (/opt/apps/nodejs/lib/node_modules/yarn/lib/cli.js:152235:17)
+      at Object.onceWrapper (events.js:421:26)
+      at ClientRequest.emit (events.js:314:20)
+      at TLSSocket.socketErrorListener (_http_client.js:427:9)
+      at TLSSocket.emit (events.js:314:20)
+      at emitErrorNT (internal/streams/destroy.js:92:8)
+      at emitErrorAndCloseNT (internal/streams/destroy.js:60:3)
+      at processTicksAndRejections (internal/process/task_queues.js:84:21)
+
+npm manifest: 
+  {
+    "name": "chrome_extention",
+    "version": "1.0.0",
+    "description": "use-reaction's devtool as chrome-extention",
+    "main": "index.js",
+    "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+          "react": "^16.9.0",
+          "react-dom": "^16.9.0"
+    },
+    "devDependencies": {
+      "webpack": "^4.19.0",
+      "webpack-cli": "^3.1.0"
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
