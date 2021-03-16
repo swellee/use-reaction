@@ -37,7 +37,8 @@ export function useModel<M extends Model = Model>(model: M): {
     let modelKey = m[MODEL_KEY_TAG]
     if (!modelKey) {
         modelKey = m[MODEL_KEY_TAG] = MODEL_KEY_PRE + (m.NAME || (Math.random().toString().split('.')[1] + Date.now()))
-        store[modelKey] = m
+        store[modelKey] = m;
+        (window as any)['__USE_REACTION_DEV_EXTENTION__'] && (window as any)['__USE_REACTION_DEV_EXTENTION__'](store)
     }
     const mStore = store[modelKey]
     /**
@@ -93,7 +94,6 @@ export function useModel<M extends Model = Model>(model: M): {
         (window as any)['__USE_REACTION_DEV_EXTENTION__'] && (window as any)['__USE_REACTION_DEV_EXTENTION__'](store, mStoreCopy, changed)
         return changed // after rerender, normally return the action's result data to UI-LEVEL 
     }
-    (window as any)['__USE_REACTION_DEV_EXTENTION__'] && (window as any)['__USE_REACTION_DEV_EXTENTION__'](store)
     return {
         store: mStore,
         doAction,
