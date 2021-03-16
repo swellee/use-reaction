@@ -36,7 +36,7 @@ export function useModel<M extends Model = Model>(model: M): {
     const m: any = model
     let modelKey = m[MODEL_KEY_TAG]
     if (!modelKey) {
-        modelKey = m[MODEL_KEY_TAG] = MODEL_KEY_PRE + m.NAME || (Math.random().toString().split('.')[1] + Date.now())
+        modelKey = m[MODEL_KEY_TAG] = MODEL_KEY_PRE + (m.NAME || (Math.random().toString().split('.')[1] + Date.now()))
         store[modelKey] = m
     }
     const mStore = store[modelKey]
