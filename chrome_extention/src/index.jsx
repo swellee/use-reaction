@@ -4,31 +4,44 @@ import { useReaction, useProvider, useModel } from 'use-reaction'
 import 'antd/dist/antd.css'
 import './index.css';
 import { ActionHistory } from './action_history';
-import { mirror_model } from './model_mirror';
+import { addAction, mirror_model, toggleEnable, upModels } from './model_mirror';
 import { ModelTree } from './model_tree';
 
 let chrome = window.chrome
 
-let devEnableTrigger
+const triggers = {
+  toggleEnable: undefined,
+  pushAction: undefined,
+  updateModels: undefined
+}
 
 const panel_port = chrome.runtime.connect({
   name: 'use-reaction-devpanel'
 })
-panel_port.postMessage({ to: 'use-reaction-devtools', info: 'hello, i am devpanel' })
 panel_port.onMessage.addListener(function (msg) {
   console.log('hook got msg:', msg)
-
-})
-
-function toDetector() {
-  panel_port.postMessage({ to: 'use-reaction-detector', info: 'msg from devpanel' })
-}
-
-chrome.storage.onChanged.addListener(function (changes, namespace) {
-  if (changes['useReactionEnabled']) {
-    devEnableTrigger && devEnableTrigger()
+  if (msg.from === 'use-reaction-detector') {
+    if (msg.enableDev) {
+      triggers.toggleEnable && triggers.toggleEnable()
+      return
+    }
+    // msg from inspected window's use-reaction
+    if (msg.changed) {
+      // msg is an action
+      triggers.pushAction && triggers.pushAction(msg)
+    } else if (msg.store) {
+      // update models when inspected window call useModel
+      triggers.updateModels && triggers.updateModels(msg.store)
+    }
   }
 })
+
+function toDevTool(msg) {
+  panel_port.postMessage({ to: 'use-reaction-devtools', info: msg })
+}
+function toDetector(msg) {
+  panel_port.postMessage({ to: 'use-reaction-detector', info: msg })
+}
 
 function App() {
   useReaction()
@@ -42,6 +55,12 @@ function App() {
 
 function Wrapper(props) {
   const { store, doAction } = useModel(mirror_model)
+  triggers.toggleEnable = () => doAction(toggleEnable)
+  triggers.updateModels = (m) => doAction(upModels, m)
+  triggers.pushAction = (m) => {
+    console.log('add action', m)
+    doAction(addAction, m)
+  }
 
   return <>
     {

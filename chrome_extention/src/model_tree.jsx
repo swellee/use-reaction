@@ -3,8 +3,9 @@ import { useModel } from "use-reaction"
 import { mirror_model } from "./model_mirror"
 import { DownOutlined } from '@ant-design/icons'
 import { useEffect, useState } from "react"
-export const ModelTree = () => {
-    const { store: { models } } = useModel(mirror_model)
+const LOADING_TAG = 'USE::REACTION::BUILTIN:LOADING'
+export const ModelTree = (props) => {
+    const { store: { viewModel, viewTitle } } = useModel(mirror_model)
     const [treeData, setTreeData] = useState([])
 
     const generateTree = (obj, subkey) => {
@@ -19,7 +20,9 @@ export const ModelTree = () => {
         }
         else if (typeof obj === 'object') {
             for (let key in obj) {
-                item.children.push(generateTree(obj[key], key))
+                if (key !== LOADING_TAG) {
+                    item.children.push(generateTree(obj[key], key))
+                }
             }
         } else {
             item.title = `${subkey}: ${obj}`
@@ -29,13 +32,16 @@ export const ModelTree = () => {
         return item
     }
     useEffect(() => {
-        const data = generateTree(models, 'global-store', {})
+        const data = generateTree(viewModel, 'click to view details', {})
         setTreeData([data])
 
-    }, [models])
-    return <Tree
-        switcherIcon={<DownOutlined />}
-        treeData={treeData}
-    />
+    }, [viewModel])
+    return <div className="data-view">
+        <h2>{viewTitle}</h2>
+        <Tree
+            switcherIcon={<DownOutlined />}
+            treeData={treeData}
+        />
+    </div>
 
 }
