@@ -8,6 +8,7 @@ const MODEL_KEY_PRE = 'USE::REACTION::MODULE::'
 const MODEL_KEY_TAG = '__MODULE__'
 const BACK_TAG = 'USE::REACTION::JUSTBACK::'
 const global: any = { store: { [LOADING_TAG]: false } }
+
 /** call this at the top line of your app to initialize, provide a 'true' param if you want to enable devtool, Note: it's better not enable devtool for your production mode */
 export function useReaction(enableDev?: boolean) {
     global.loading_call = 0
@@ -92,10 +93,8 @@ export function useModel<M extends Model = Model>(model: M): {
             }
         }
         // update model
-        const storeNew = { ...store, [m[MODEL_KEY_TAG]]: mStoreCopy }
-        Object.assign(global.store, storeNew)
-        dispatch(storeNew);// semicon here to avoid treat nextline as the paramter :D
-        (window as any)['__USE_REACTION_DEV_EXTENTION__'] && (window as any)['__USE_REACTION_DEV_EXTENTION__'](storeNew, mStoreCopy, changed)
+        dispatch(Object.assign(global.store, { [m[MODEL_KEY_TAG]]: mStoreCopy }));// semicon here to avoid treat nextline as the paramter :D
+        (window as any)['__USE_REACTION_DEV_EXTENTION__'] && (window as any)['__USE_REACTION_DEV_EXTENTION__'](global.store, mStoreCopy, changed)
         return changed // after rerender, normally return the action's result data to UI-LEVEL 
     }
     return {
