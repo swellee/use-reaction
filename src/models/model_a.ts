@@ -7,6 +7,11 @@ interface ModelA {
     a: number
     aa: {
         aa: number
+    },
+    hello: {
+        world: {
+            welcome: string
+        }
     }
 }
 
@@ -18,6 +23,11 @@ export const model_a: ModelA = {
     aa: {
         aa: 1
     },
+    hello: {
+        world: {
+            welcome: 'to use-reaction'
+        }
+    }
 }
 
 /**

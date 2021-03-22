@@ -7,7 +7,7 @@ const LOADING_TAG = 'USE::REACTION::BUILTIN:LOADING'
 const MODEL_KEY_PRE = 'USE::REACTION::MODULE::'
 const MODEL_KEY_TAG = '__MODULE__'
 const BACK_TAG = 'USE::REACTION::JUSTBACK::'
-const global: any = { [LOADING_TAG]: false }
+const global: any = { store: { [LOADING_TAG]: false } }
 /** call this at the top line of your app to initialize, provide a 'true' param if you want to enable devtool, Note: it's better not enable devtool for your production mode */
 export function useReaction(enableDev?: boolean) {
     global.loading_call = 0
@@ -15,7 +15,7 @@ export function useReaction(enableDev?: boolean) {
     global.ctx = createContext(null)
     enableDev && document && window.postMessage({ __USE_REACTION_DEV_ENABLED__: true }, '*')
     global.provider = function Provider(props: KV) {
-        const [store, dispatch] = useReducer((_: any, m: any) => m, global)
+        const [store, dispatch] = useReducer((_: any, m: any) => m, global.store)
         return React.createElement(global.ctx.Provider, { value: { store, dispatch } }, props.children);
     }
 }
@@ -40,7 +40,6 @@ export function useModel<M extends Model = Model>(model: M): {
         store[modelKey] = m;
         (window as any)['__USE_REACTION_DEV_EXTENTION__'] && (window as any)['__USE_REACTION_DEV_EXTENTION__'](store)
     }
-    const mStore = store[modelKey]
     /**
      * action trigger
      * @param action the action-like function
@@ -48,6 +47,9 @@ export function useModel<M extends Model = Model>(model: M): {
      * @param showLoading whether showloading, possible value is 'model' | 'global' | true, default=undefined, and true is same with 'global', 'model' means only change the loading flag for this model
      */
     async function doAction(action: Action<M>, payload: any = undefined, showLoading?: 'model' | 'global') {
+        const { store } = global
+        const mStore = store[modelKey]
+
         if (showLoading === 'global') {
             global.loading_call++
             if (!store[LOADING_TAG]) {
@@ -90,12 +92,14 @@ export function useModel<M extends Model = Model>(model: M): {
             }
         }
         // update model
-        dispatch({ ...store, [m[MODEL_KEY_TAG]]: mStoreCopy });// semicon here to avoid treat nextline as the paramter :D
-        (window as any)['__USE_REACTION_DEV_EXTENTION__'] && (window as any)['__USE_REACTION_DEV_EXTENTION__'](store, mStoreCopy, changed)
+        const storeNew = { ...store, [m[MODEL_KEY_TAG]]: mStoreCopy }
+        Object.assign(global.store, storeNew)
+        dispatch(storeNew);// semicon here to avoid treat nextline as the paramter :D
+        (window as any)['__USE_REACTION_DEV_EXTENTION__'] && (window as any)['__USE_REACTION_DEV_EXTENTION__'](storeNew, mStoreCopy, changed)
         return changed // after rerender, normally return the action's result data to UI-LEVEL 
     }
     return {
-        store: mStore,
+        store: store[modelKey],
         doAction,
         resetModel: () => doAction(() => m)
     }
