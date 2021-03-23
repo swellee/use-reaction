@@ -7,7 +7,7 @@ const LOADING_TAG = 'USE::REACTION::BUILTIN:LOADING'
 const MODEL_KEY_PRE = 'USE::REACTION::MODULE::'
 const MODEL_KEY_TAG = '__MODULE__'
 const BACK_TAG = 'USE::REACTION::JUSTBACK::'
-const global: any = { store: { [LOADING_TAG]: false } }
+const global: any = { init: { [LOADING_TAG]: false } }
 
 /** call this at the top line of your app to initialize, provide a 'true' param if you want to enable devtool, Note: it's better not enable devtool for your production mode */
 export function useReaction(enableDev?: boolean) {
@@ -16,14 +16,15 @@ export function useReaction(enableDev?: boolean) {
     global.ctx = createContext(null)
     enableDev && document && window.postMessage({ __USE_REACTION_DEV_ENABLED__: true }, '*')
     global.provider = function Provider(props: KV) {
-        const [store, dispatch] = useReducer((_: any, m: any) => m, global.store)
+        const [store, dispatch] = useReducer((_: any, m: any) => m, global.init)
+        Object.assign(global, { store })
         return React.createElement(global.ctx.Provider, { value: { store, dispatch } }, props.children);
     }
+
 }
 /** call this to get the root Provider to wrap your app */
-export function useProvider() {
-    return global.provider
-}
+export const useProvider = () => global.provider
+
 /**call this to retrive the store + action-trigger + resetModel-trigger of given model */
 export function useModel<M extends Model = Model>(model: M): {
     /**the store of this model */
@@ -45,13 +46,12 @@ export function useModel<M extends Model = Model>(model: M): {
      * action trigger
      * @param action the action-like function
      * @param payload the payload which will pass to action-function
-     * @param showLoading whether showloading, possible value is 'model' | 'global' | true, default=undefined, and true is same with 'global', 'model' means only change the loading flag for this model
+     * @param showLoading whether showloading, possible value is 'model' | 'global' | true . default=undefined, 'global' equals 'true', means show global loading; and 'model' means only change the loading flag for this model
      */
-    async function doAction(action: Action<M>, payload: any = undefined, showLoading?: 'model' | 'global') {
+    async function doAction(action: Action<M>, payload: any = undefined, showLoading?: 'model' | 'global' | true) {
         const { store } = global
         const mStore = store[modelKey]
-
-        if (showLoading === 'global') {
+        if (showLoading === 'global' || showLoading === true) {
             global.loading_call++
             if (!store[LOADING_TAG]) {
                 dispatch({ ...store, [LOADING_TAG]: true })
@@ -93,8 +93,9 @@ export function useModel<M extends Model = Model>(model: M): {
             }
         }
         // update model
-        dispatch(Object.assign(global.store, { [m[MODEL_KEY_TAG]]: mStoreCopy }));// semicon here to avoid treat nextline as the paramter :D
-        (window as any)['__USE_REACTION_DEV_EXTENTION__'] && (window as any)['__USE_REACTION_DEV_EXTENTION__'](global.store, mStore, changed)
+        const storeNew = { ...store, [m[MODEL_KEY_TAG]]: mStoreCopy }
+        dispatch(storeNew); // note: global.store is differnt from storeNew, can't dispatch global.store directly
+        Object.assign(global.store, storeNew) && (window as any)['__USE_REACTION_DEV_EXTENTION__'] && (window as any)['__USE_REACTION_DEV_EXTENTION__'](storeNew, mStore, changed)
         return changed // after rerender, normally return the action's result data to UI-LEVEL 
     }
     return {
