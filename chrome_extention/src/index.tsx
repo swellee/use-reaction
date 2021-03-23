@@ -28,7 +28,7 @@ const panel_port = chrome.runtime.connect({
   name: 'use-reaction-devpanel'
 })
 panel_port.onMessage.addListener(function (msg: any) {
-  console.log('hook got msg:', msg)
+  // console.log('hook got msg:', msg)
   if (msg.from === 'use-reaction-detector') {
     if (msg.enableDev) {
       triggers.toggleEnable && triggers.toggleEnable()
@@ -87,8 +87,13 @@ class Wrapper extends React.Component<KV, KV> {
         </div>) : (<div className="disabled">
           <div className="title">use-reaction not detected</div>
           <div className="des">
-            ensure that you have included the <a href="https://www.npmjs.com/package/use-reaction">use-reaction</a> package
+            <div className="tips">
+            1. ensure that you have included the <a href="https://www.npmjs.com/package/use-reaction">use-reaction</a> package
           into your React app, and passed 'true' when initializa call <code>useReaction(true)</code> to enabled devtool
+            </div>
+            <div className="tips">
+              2.refresh your webapp page; or trigger one <code>doAction</code> call, so that devtools can inspect.
+            </div>
         </div>
         </div>)
       }

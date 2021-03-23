@@ -94,7 +94,7 @@ export function useModel<M extends Model = Model>(model: M): {
         }
         // update model
         dispatch(Object.assign(global.store, { [m[MODEL_KEY_TAG]]: mStoreCopy }));// semicon here to avoid treat nextline as the paramter :D
-        (window as any)['__USE_REACTION_DEV_EXTENTION__'] && (window as any)['__USE_REACTION_DEV_EXTENTION__'](global.store, mStoreCopy, changed)
+        (window as any)['__USE_REACTION_DEV_EXTENTION__'] && (window as any)['__USE_REACTION_DEV_EXTENTION__'](global.store, mStore, changed)
         return changed // after rerender, normally return the action's result data to UI-LEVEL 
     }
     return {

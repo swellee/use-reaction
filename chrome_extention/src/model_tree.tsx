@@ -19,16 +19,16 @@ export class ModelTree extends React.Component<Partial<MirrorModel>, KV> {
         }
         const item: KV = {
             title: subkey,
-            key: subkey + lvl
+            key: subkey + lvl,
         }
         item.children = item.children || []
 
         if (Array.isArray(obj)) {
-            item.children.push(...(obj.map((item, idx) => ModelTree.generateTree(item, `${subkey}[${idx}]`, lvl++)).filter(Boolean)))
+            item.children.push(...(obj.map((item, idx) => ModelTree.generateTree(item, `${subkey}[${idx}]`, ++lvl)).filter(Boolean)))
         } else if (typeof obj === 'object') {
             for (let key in obj) {
                 if (key !== LOADING_TAG) {
-                    const child = ModelTree.generateTree(obj[key], key.startsWith(MODEL_KEY_PRE) ? `anonymous_model_${++unNamedModelIdx}` : key, lvl++)
+                    const child = ModelTree.generateTree(obj[key], key.startsWith(MODEL_KEY_PRE) ? `anonymous_model_${++unNamedModelIdx}` : key, ++lvl)
                     child && item.children.push(child)
                 }
             }
@@ -48,18 +48,15 @@ export class ModelTree extends React.Component<Partial<MirrorModel>, KV> {
     }
     updateTree(props: KV) {
         const { viewModel, models, viewTitle } = props
+        unNamedModelIdx = 0
         this.setState({ treeData: [ModelTree.generateTree(viewTitle === TITLE_VIEW_GLOBAL ? models : viewModel, 'data-tree')] })
     }
     render() {
         let { treeData } = this.state
+        console.log('treeData', treeData)
         const { viewTitle } = this.props
         return <div className="data-view">
-            <h2>{viewTitle}
-                {
-                    viewTitle !== TITLE_VIEW_GLOBAL && <span> or you may wanna view<Button onClick={e => doAction(viewGlobal)}>global</Button></span>
-                }
-            </h2>
-
+            <h2>{viewTitle} </h2>
             {
                 treeData?.length ?
                     <Tree
