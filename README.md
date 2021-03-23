@@ -5,7 +5,8 @@ small package size(about 100 lines only)
 # repo
 here is [Repo](https://github.com/swellee/use-reaction), If you like this framework, consider give me a star!
 # chrome-dev-tools
-the chrome extention devtool has been released
+the chrome extention devtool has been released, [download!](https://raw.githubusercontent.com/swellee/use-reaction/main/chrome_extention/build.crx)
+## use devtool to track the actions and models sanpshot.
 # install
 ```shell
 npm i use-reaction

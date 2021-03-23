@@ -34,7 +34,7 @@ export function useModel<M extends Model = Model>(model: M): {
     /**the function to reset model to it's initial state when you defined it */
     resetModel: () => void
 } {
-    const { store, dispatch }: any = useContext(global.ctx)
+    const { store, dispatch }: any = useContext(global.ctx) || global
     const m: any = model
     let modelKey = m[MODEL_KEY_TAG]
     if (!modelKey) {
