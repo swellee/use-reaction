@@ -51,7 +51,6 @@ export const actionTestA: Action<ModelA> = async ({ payload, store }) => {
     // return changed part
     return {
         a: store.a + payload,
-        aa: {aa: store.aa.aa + payload},
         sth: 'hello world' // Note: this field will be ignored and won't be added into model_a b/c the field 'sth' is not defined in ModelA !!!
     }
 }

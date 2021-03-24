@@ -21,11 +21,13 @@ export const App: React.FC = () => {
                 <CompC />
             </SubPageB>
         </GlobalLoading>
+        <CompC />
     </Provider>
 }
 
 function GlobalLoading(props: KV) {
     const loading = useLoading()
+    console.log('loading:', loading)
     return < Spin spinning={loading} >
         {props.children}
     </Spin >
@@ -66,6 +68,7 @@ function SubPageA(props?: KV) {
 function SubPageB(props: KV) {
     const { store, doAction } = useModel(model_b)
     const loading = useLoading(model_b)
+    console.log('model render loading', loading)
     return (
         <Spin spinning={loading}>
 
@@ -87,7 +90,7 @@ function SubPageB(props: KV) {
 }
 
 function CompC() {
-    const { store, resetModel } = useModel(model_a)
+    const { store, resetModel, doAction } = useModel(model_a)
     const { store: storeB, resetModel: resetModelB } = useModel(model_b)
     return <div className="comp">
         <p>the values in model_a:</p>
@@ -103,5 +106,6 @@ function CompC() {
         </ul>
         <hr />
         <button onClick={resetModelB}>reset model_b</button>
+        <button onClick={e => doAction(actionTestA, null, 'global')}> do loading</button>
     </div>
 }
