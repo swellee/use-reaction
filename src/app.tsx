@@ -38,9 +38,10 @@ function SubPageA(props?: KV) {
     const { store, doAction } = useModel(model_a)
     const { store: storeB, doAction: doActionB } = useModel(model_b)
 
-    const onfinish = (values: any) => {
+    const onfinish = async (values: any) => {
         console.log('values', values)
-        doAction(actionTestA, 2, 'global')
+        await doAction(actionTestA, 2, 'global')
+        console.log('hello hello')
     }
     return (
 

@@ -60,6 +60,7 @@ async function nextAction() {
         // update model
         dispatch({ ...global.store }); // note: global.store is differnt from storeNew, can't dispatch global.store directly
         !isloading && (window as any)['__USE_REACTION_DEV_EXTENTION__'] && (window as any)['__USE_REACTION_DEV_EXTENTION__'](global.store, mStoreOld, changed)
+        callback && callback(changed)
     }
     nextAction()
 }
