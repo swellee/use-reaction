@@ -85,89 +85,110 @@ npm i use-reaction
     ```
 4. call **useModel(model_a)** in your non-root Component to get certain model's store and action-dispatcher, here is the full featured example:
     ```typescript
-    // the global loading wrapper
-    function GlobalLoading(props: KV) {
-       const loading = useLoading()
-       return < Spin spinning={loading} >
-           {props.children}
-       </Spin >
+    export const App: React.FC = () => {
+        /**init use-reaction */
+        useReaction(true)
+
+        /**obtain Provider */
+        const Provider = useProvider()
+
+        /**render */
+        return <Provider>
+            <GlobalLoading>
+                <SubPageA />
+                <SubPageB>
+                    <CompC />
+                </SubPageB>
+            </GlobalLoading>
+            <CompC />
+        </Provider>
     }
-    // one child component
+
+    function GlobalLoading(props: KV) {
+        const loading = useLoading()
+        console.log('loading:', loading)
+        return < Spin spinning={loading} >
+            {props.children}
+        </Spin >
+    }
+
+    //--------examples of how to use---------
     function SubPageA(props?: KV) {
-       const { store, doAction } = useModel(model_a)
-       const { store: storeB, doAction: doActionB } = useModel(model_b)
+        const { store, doAction } = useModel(model_a)
+        const { store: storeB, doAction: doActionB } = useModel(model_b)
 
-       const onfinish = (values: any) => {
-           console.log('values', values)
-           doAction(actionTestA, 2, 'global') // execute actionTestA with global loading
-       }
-       return (
+        const onfinish = async (values: any) => {
+            console.log('values', values)
+            await doAction(actionTestA, 2, 'global')
+            console.log('hello hello')
+        }
+        return (
 
-           <div className="page page-a">
-               <h3>page A</h3>
-               <div>
-                   value 'A' is {store.a}
-               </div>
-               <div>
-                   value 'B' is {storeB.b}
-               </div>
-               <Form onFinish={onfinish}>
-                   <Form.Item label="email" name="email"><Input /></Form.Item>
-                   <Form.Item label="password" name="password"><Password /></Form.Item>
-                   <Button htmlType="submit">increase A with global loading</Button>
-               </Form>
-               <button onClick={async e => {
-                   const backed = await doActionB(actionJustBackData, ',world:' + Date.now())
-                   alert(backed)
-               }}>just back data</button>
-           </div>
+            <div className="page page-a">
+                <h3>page A</h3>
+                <div>
+                    value 'A' is {store.a}
+                </div>
+                <div>
+                    value 'B' is {storeB.b}
+                </div>
+                <Form onFinish={onfinish}>
+                    <Form.Item label="email" name="email"><Input /></Form.Item>
+                    <Form.Item label="password" name="password"><Password /></Form.Item>
+                    <Button htmlType="submit">increase A with global loading</Button>
+                </Form>
+                <button onClick={async e => {
+                    const backed = await doActionB(actionJustBackData, ',world:' + Date.now())
+                    alert(backed)
+                }}>just back data</button>
+            </div>
 
-       )
-   }
-   // another Child component
-   function SubPageB(props: KV) {
-       const { store, doAction } = useModel(model_b)
-       const loading = useLoading(model_b)// listen to model_b's loading state
-       return (
-           <Spin spinning={loading}>
+        )
+    }
+    function SubPageB(props: KV) {
+        const { store, doAction } = useModel(model_b)
+        const loading = useLoading(model_b)
+        console.log('model render loading', loading)
+        return (
+            <Spin spinning={loading}>
 
-               <div className="page page-b">
-                   <h3>page B</h3>
-                   <div>
-                       value B is {store.b}
-                   </div>
-                   <button onClick={e => {
-                       doAction(actionTestB, 'do action with loading', 'model') // execute actionTestB with model-loading
-                   }}>Increse B with model loading</button>
+                <div className="page page-b">
+                    <h3>page B</h3>
+                    <div>
+                        value B is {store.b}
+                    </div>
+                    <button onClick={e => {
+                        doAction(actionTestB, 'do action with loading', 'model')
+                    }}>Increse B with model loading</button>
 
-                   <h6>see my child compenent below:</h6>
-                   {props.children}
-               </div>
-           </Spin>
+                    <h6>see my child compenent below:</h6>
+                    {props.children}
+                </div>
+            </Spin>
 
-       )
-   }
-    // yet another deep-child component, show how to reset your model-store
-   function CompC() {
-       const { store, resetModel } = useModel(model_a)
-       const { store: storeB, resetModel: resetModelB } = useModel(model_b)
+        )
+    }
 
-       return <div className="comp">
-           <p>the values in model_a:</p>
-           <ul>
-               <li><span>Value A:</span><span>{store.a}</span></li>
-               <li><span>Value AA:</span><span>{store.aa.aa}</span></li>
-           </ul>
-           <button onClick={resetModel}>reset model_a</button>
-           <hr />
-           <p>the values in model_b:</p>
-           <ul>
-               <li><span>Value B:</span><span>{storeB.b}</span></li>
-           </ul>
-           <hr />
-           <button onClick={resetModelB}>reset model_b</button>
-       </div>
-   }
+    function CompC() {
+        const { store, resetModel, doAction } = useModel(model_a)
+        const { store: storeB, resetModel: resetModelB } = useModel(model_b)
+        return <div className="comp">
+            <p>the values in model_a:</p>
+            <ul>
+                <li><span>Value A:</span><span>{store.a}</span></li>
+                <li><span>Value AA:</span><span>{store.aa.aa}</span></li>
+            </ul>
+            <button onClick={resetModel}>reset model_a</button>
+            <hr />
+            <p>the values in model_b:</p>
+            <ul>
+                <li><span>Value B:</span><span>{storeB.b}</span></li>
+            </ul>
+            <hr />
+            <button onClick={resetModelB}>reset model_b</button>
+            <button onClick={e => doAction(actionTestA, null, 'global')}> do loading</button>
+        </div>
+    }
     ```
     
 # more details, see the [example](https://github.com/swellee/use-reaction/blob/main/src/app.tsx), you can clone the repo and run locally to know it better.
