@@ -6,6 +6,7 @@ import { mapProp, KV, doAction } from "module-reaction"
 const LOADING_TAG = 'USE::REACTION::BUILTIN:LOADING'
 const MODEL_KEY_PRE = 'USE::REACTION::MODULE::'
 const MODEL_TAG = '__MODULE__'
+const MODEL_NAME = 'NAME'
 
 let unNamedModelIdx = 0
 @mapProp(mirror_model)
@@ -27,8 +28,8 @@ export class ModelTree extends React.Component<Partial<MirrorModel>, KV> {
             item.children.push(...(obj.map((item, idx) => ModelTree.generateTree(item, `${subkey}[${idx}]`, ++lvl)).filter(Boolean)))
         } else if (typeof obj === 'object') {
             for (let key in obj) {
-                if (key !== LOADING_TAG) {
-                    const child = ModelTree.generateTree(obj[key], key.startsWith(MODEL_KEY_PRE) ? `anonymous_model_${++unNamedModelIdx}` : key, ++lvl)
+                if (key !== LOADING_TAG && key !== MODEL_NAME) {
+                    const child = ModelTree.generateTree(obj[key], key.startsWith(MODEL_KEY_PRE) ? (obj[key][MODEL_NAME] || `anonymous_model_${++unNamedModelIdx}`) : key, ++lvl)
                     child && item.children.push(child)
                 }
             }

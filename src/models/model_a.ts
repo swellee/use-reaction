@@ -1,9 +1,9 @@
-import { Action } from "../lib/useReaction"
+import { Action, Model } from "../lib/useReaction"
 
 /**
  * it's better to define a interface for your model
  */
-interface ModelA {
+interface ModelA extends Model {
     a: number
     aa: {
         aa: number
@@ -19,6 +19,7 @@ interface ModelA {
  * declare a const to hold your model
  */
 export const model_a: ModelA = {
+    NAME: 'model_a',
     a: 1,
     aa: {
         aa: 1
@@ -51,6 +52,6 @@ export const actionTestA: Action<ModelA> = async ({ payload, store }) => {
     // return changed part
     return {
         a: store.a + payload,
-        sth: 'hello world' // Note: this field will be ignored and won't be added into model_a b/c the field 'sth' is not defined in ModelA !!!
+        sth: 'hello world' // Note: if in strict mode, this field will be ignored and won't be added into model_a b/c the field 'sth' is not defined in ModelA !!!
     }
 }

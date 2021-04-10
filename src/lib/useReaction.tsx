@@ -11,9 +11,8 @@ const BACK_TAG = 'USE::REACTION::JUSTBACK::'
 const global: any = { init: { [LOADING_TAG]: false } }
 const queue: { action: Action<any>, modelKey: string, payload?: any, callback?: (res?: any) => void, isloading?: boolean }[] = []
 /** call this at the top line of your app to initialize, provide a 'true' param if you want to enable devtool, Note: it's better not enable devtool for your production mode */
-export function useReaction(enableDev?: boolean) {
-    global.loading_call = 0
-    global.model_loading_call = {}
+export function useReaction(enableDev?: boolean, strict?: boolean) {
+    global.strict = strict
     global.ctx = global.ctx || createContext(null)
     enableDev && document && window.postMessage({ __USE_REACTION_DEV_ENABLED__: true }, '*')
     global.provider = function Provider(props: KV) {
@@ -36,7 +35,7 @@ function inQueue<M extends Model>(action: Action<M>, payload: any, modelKey: str
         if (loading) {
             queue.push({ action: () => ({ [LOADING_TAG]: false }), modelKey: loading === 'global' ? GLOBAL_KEY : modelKey, isloading: true })
         }
-        if (queue.length === readyNum) nextAction()
+        queue.length === readyNum && nextAction()
     })
 }
 async function nextAction() {
@@ -51,9 +50,9 @@ async function nextAction() {
     } else if (changed[BACK_TAG]) {
         callback && callback(changed[BACK_TAG])
     } else {
-        // limit changed data only contains keys already exist in model
+        // limit changed data only contains keys already exist in model for strict mode
         for (let key in changed) {
-            if (key === LOADING_TAG || key in mStore) {
+            if (!global.strict || key === LOADING_TAG || key in mStore) {
                 mStore[key] = changed[key]
             }
         }
@@ -85,22 +84,15 @@ export function useModel<M extends Model = Model>(model: M): {
      * action trigger
      * @param action the action-like function
      * @param payload the payload which will pass to action-function
-     * @param showLoading whether showloading, possible value is 'model' | 'global' | true . default=undefined, 'global' equals 'true', means show global loading; and 'model' means only change the loading flag for this model
+     * @param showLoading whether showloading, possible value is 'model' | 'global' . default=undefined, 'global' means show global loading; and 'model' means only change the loading flag for this model
      */
     const doAction = (action: Action<M>, payload: any = undefined, showLoading?: 'model' | 'global') => inQueue(action, payload, modelKey, showLoading)
-    return {
-        store: store[modelKey],
-        doAction,
-        resetModel: () => doAction(() => m)
-    }
+    return { store: store[modelKey], doAction, resetModel: () => doAction(() => m) }
 }
 /**get the loading state of given model, if don't provide model param, then will return the global loading state */
 export function useLoading<M extends Model>(m?: M): boolean {
     const { store } = useContext(global.ctx) || global
-    if (m) {
-        return m[MODEL_KEY_TAG] ? Boolean(store[m[MODEL_KEY_TAG]][LOADING_TAG]) : false
-    }
-    return store[LOADING_TAG]
+    return m && m[MODEL_KEY_TAG] ? Boolean(store[m[MODEL_KEY_TAG]][LOADING_TAG]) : store[LOADING_TAG]
 }
 /**
  * use this in your action function to just return data without modify model, won't trigger rerender

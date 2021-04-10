@@ -12,18 +12,20 @@ the chrome extention devtool has been released, [download!](https://raw.githubus
 npm i use-reaction
 ```
 # apis
-1. `useReaction` - the initial function of this framework, you can enableDevtool on development mode, (not recommend to enable dev on production mode)
+1. `useReaction` - the initial function of this framework, accept two optional params, 
+    - first param is **enableDev**,you can enableDevtool on development mode, (not recommend to enable dev on production mode)
+    - secod param is **strict**, you can enable strict mode if you cant to limit the action's back data only modify model-store's exists properties.
 2. `useProvider` - return the Provider used to wrap your app's root component
 3. `useModel` - retrive the {***store***, ***doAction***, ***resetModel***} of given model instance
    1. `store` - the store of this model
    2. `doAction` - the action trigger, accept 3 params, these are:
-      1. ***action*** - the function (normal or PromiseLike), which can return changed part of model's Interface, or return nothing, or return `justBack(data)` to avoid modify store
-      2. ***payload*** - the paload which will pass to the ***action*** function,
-      3. ***showLoading*** - whether showloading when process this action, you can pass param ***model*** or ***global*** and, `model` means change loading state for this model-store, `global` means change loading for global, default undefined, see `useLoading`
-      4. Note: the doAction is an async function, and will return what the ***action*** function's return-data, so you can get the result-data of the ***action*** function
-      5. Note: each doAction call will be serialized into queue, so, if your can ***doAction*** multi-times, it will finish one by one!!
+      - ***action*** - the function (normal or PromiseLike), which can return changed part of model's Interface, or return nothing, or return `justBack(data)` to avoid modify store
+      - ***payload*** - the paload which will pass to the ***action*** function,
+      - ***showLoading*** - whether showloading when process this action, you can pass param ***model*** or ***global*** and, `model` means change loading state for this model-store, `global` means change loading for global, default undefined, see `useLoading`
+      - Note: the doAction is an async function, and will return what the ***action*** function's return-data, so you can get the result-data of the ***action*** function
+      - Note: each doAction call will be serialized into queue, so, if your can ***doAction*** multi-times, it will finish one by one!!
    3. `resetModel` - the trigger for reset the given model to its initial state when it's defined
-4. `useLoading` - retrieve the loading flag(true/false) of given model-instance, if not provide model, then it will return the global loading flag, this flag will change when call `doAction(someAction, payload, 'model' | 'global' | true)`
+4. `useLoading` - retrieve the loading flag(true/false) of given model-instance, if not provide model, then it will return the global loading flag, this flag will change when call `doAction(someAction, payload, 'model' | 'global')`
 5. `justBack` - sometimes, your action don't want to modify the model store, just want to process sth and return the data back to UI level, then you can use this api to wrap your return data, so that the return data of your action won't trigger modify and won't trigger rerender, like this:
     ```typescript
     export const actionJustBackData: Action<typeof model_b> = async function({ payload }) {
@@ -63,6 +65,7 @@ npm i use-reaction
     like this:
     ```typescript
        export const model_a: ModelA = {
+          NAME: 'model_a', // optional, but it's better have a 'NAME' prop, then devtool can display a better way.
           a: 1,
           aa: {
               aa: 1
@@ -79,7 +82,7 @@ npm i use-reaction
           // return changed part
           return {
               a: store.a + payload,
-              sth: 'hello world' // Note: this field will be ignored and won't be added into model_a b/c the field 'sth' is not defined in ModelA !!!
+              sth: 'hello world' // Note: if you enabled strict mode, this field will be ignored and won't be added into model_a b/c property 'sth' is not defined in model_a instance !!!
           }
       }
     ```
