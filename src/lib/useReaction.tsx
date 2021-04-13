@@ -44,7 +44,8 @@ async function nextAction() {
     const { store, dispatch } = global
     const mStore = modelKey === GLOBAL_KEY ? store : store[modelKey]
     const mStoreOld = Object.freeze({ ...mStore })
-    const changed = await action({ payload, store: mStoreOld })
+    let changed
+    try { changed = await action({ payload, store: mStoreOld }) } catch (error) { console.warn('action failed by:', error, 'skipped') }
     if (!changed) {
         callback && callback()
     } else if (changed[BACK_TAG]) {
