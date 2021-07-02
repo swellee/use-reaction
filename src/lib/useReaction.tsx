@@ -2,7 +2,6 @@ import React, { createContext, useContext, useReducer } from "react"
 export interface KV { [k: string]: any }
 export interface Model extends KV { NAME?: string }
 export type Action<M = Model> = (param: { payload?: any, store: Readonly<M> }) => void | Partial<M> | Promise<Partial<M>> | Promise<void>
-
 const GLOBAL_KEY = 'USE::REACTION::GLOBAL::KEY'
 const LOADING_TAG = 'USE::REACTION::BUILTIN:LOADING'
 const MODEL_KEY_PRE = 'USE::REACTION::MODULE::'
@@ -20,7 +19,6 @@ export function useReaction(enableDev?: boolean, strict?: boolean) {
         Object.assign(global, { store, dispatch })
         return React.createElement(global.ctx.Provider, { value: { store } }, props.children);
     }
-
 }
 /** call this to get the root Provider to wrap your app */
 export const useProvider = () => global.provider

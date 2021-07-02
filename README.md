@@ -1,7 +1,12 @@
 # use-reaction
 react modulized store manager framework based on react hooks.
 easy to manage your app's states in modulized way.
-small package size(about 100 lines only)
+# main features
+- Pure React `just react hooks` 
+- Small Size `100 lines code`
+- Small Api `easy to learn`
+- modulized `devide your states to business units so easy to manage and keep it safe from one another`
+- chrome-dev-tool `use chrome dev tool to view your module store and action history(in dev mode)`
 # repo
 here is [Repo](https://github.com/swellee/use-reaction), If you like this framework, consider give me a star!
 # chrome-dev-tools
@@ -11,11 +16,22 @@ the chrome extention devtool has been released, [download!](https://raw.githubus
 ```shell
 npm i use-reaction
 ```
+# core concept:
+- init:
+    - call `useReaction` to init the framework
+    - call `useProvider` to retrieve the root Wrapper
+- develop:
+    - define model instance to present module store's properties for your business.
+    - call `useModel` in your UI components to get the module store data.
+    - call `doAction` to change parts of your module store. once action done. will trigger re-render of UI above
+
 # apis
 1. `useReaction` - the initial function of this framework, accept two optional params, 
-    - first param is **enableDev**,you can enableDevtool on development mode, (not recommend to enable dev on production mode)
-    - secod param is **strict**, you can enable strict mode if you cant to limit the action's back data only modify model-store's exists properties.
+    - first param is **enableDev**,you can enableDevtool on development mode, so that you can use chrome-dev-tool to view the module-stores and action history (not recommend to enable dev on production mode)
+    - secod param is **strict**, you can enable strict mode if you want to limit the action's back data only modify model-store's exists properties.
+    -----
 2. `useProvider` - return the Provider used to wrap your app's root component
+    - -----
 3. `useModel` - retrive the {***store***, ***doAction***, ***resetModel***} of given model instance
    1. `store` - the store of this model
    2. `doAction` - the action trigger, accept 3 params, these are:
@@ -26,7 +42,9 @@ npm i use-reaction
       - Note: each doAction call will be serialized into queue, so, if your can ***doAction*** multi-times, it will finish one by one!!
       - Note: if error occur during this action. framework will print error message to console, and ignore this action, then try to excute next action in the queue.
    3. `resetModel` - the trigger for reset the given model to its initial state when it's defined
+   ----
 4. `useLoading` - retrieve the loading flag(true/false) of given model-instance, if not provide model, then it will return the global loading flag, this flag will change when call `doAction(someAction, payload, 'model' | 'global')`
+    - ----
 5. `justBack` - sometimes, your action don't want to modify the model store, just want to process sth and return the data back to UI level, then you can use this api to wrap your return data, so that the return data of your action won't trigger modify and won't trigger rerender, like this:
     ```typescript
     export const actionJustBackData: Action<typeof model_b> = async function({ payload }) {
@@ -34,6 +52,7 @@ npm i use-reaction
        return justBack('hello' + payload)
    }
     ```
+    ----
 
 # How to use
 1. call **useReaction()** at the top line of your App Component function to init, like this;
