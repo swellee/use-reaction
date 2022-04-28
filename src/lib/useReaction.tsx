@@ -44,7 +44,7 @@ async function nextAction() {
     const mStoreOld = Object.freeze({ ...mStore })
     let changed
     try { changed = await action({ payload, store: mStoreOld }) } catch (error) { console.warn('action failed by:', error, 'skipped') }
-    if (!changed) {
+    if (!changed || !Object.keys(changed).length) {
         callback && callback()
     } else if (changed[BACK_TAG]) {
         callback && callback(changed[BACK_TAG])

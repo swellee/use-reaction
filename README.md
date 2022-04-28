@@ -106,6 +106,7 @@ npm i use-reaction
           }
       }
     ```
+    Note: return empty object `{}` in your action equals to return nothing, won't trigger re-render.
 4. call **useModel(model_a)** in your non-root Component to get certain model's store and action-dispatcher, here is the full featured example:
     ```typescript
     export const App: React.FC = () => {
