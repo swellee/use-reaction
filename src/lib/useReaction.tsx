@@ -68,7 +68,8 @@ export function useModel<M extends Model = Model>(model: M): {
     store: M
     /**the function to trigger action for this model, pls Note that it won't affect other models */
     doAction: (action: Action<M>, payload?: any, showLoading?: 'model' | 'global') => Promise<Partial<M>> | Promise<void>,
-    doFunction: (fn: Function, showLoading?: 'model' | 'global')=>void,
+    /** a convenient trigger to execute freedom function in action queue, and optional trigger loading, but won't affect model data */
+    doFunction: (fn: Function, showLoading?: 'model' | 'global')=> any,
     /**the function to reset model to it's initial state when you defined it */
     resetModel: () => void
 } {
