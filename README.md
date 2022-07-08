@@ -41,7 +41,22 @@ npm i use-reaction
       - Note: the doAction is an async function, and will return what the ***action*** function's return-data, so you can get the result-data of the ***action*** function
       - Note: each doAction call will be serialized into queue, so, if your can ***doAction*** multi-times, it will finish one by one!!
       - Note: if error occur during this action. framework will print error message to console, and ignore this action, then try to excute next action in the queue.
-   3. `resetModel` - the trigger for reset the given model to its initial state when it's defined
+   3. `doFunction` - the trigger to call what you like function, it won't affect model data, but can use the model/global loading.
+        - eg. in your logic, you have ***actionA***, and ***actionB***, later, you want to call api to check sth before ***actionB**, 
+        then you can insert a ***doFunction*** section, code like:
+        ```typescript
+        async doSth() =>{
+            doAction(actionA);
+            // execute callApi, and trigger the global loading, without modify model-data
+            doFunction(async()=> {
+                await callApi(xxx)
+            }, 'global');
+
+            doAction(actionB);
+            ...
+        }
+        ```
+   4. `resetModel` - the trigger for reset the given model to its initial state when it's defined
    ----
 4. `useLoading` - retrieve the loading flag(true/false) of given model-instance, if not provide model, then it will return the global loading flag, this flag will change when call `doAction(someAction, payload, 'model' | 'global')`
     - ----
