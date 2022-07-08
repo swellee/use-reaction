@@ -67,7 +67,8 @@ export function useModel<M extends Model = Model>(model: M): {
     /**the store of this model */
     store: M
     /**the function to trigger action for this model, pls Note that it won't affect other models */
-    doAction: (action: Action<M>, payload?: any, showLoading?: 'model' | 'global') => Promise<Partial<M>> | Promise<void>
+    doAction: (action: Action<M>, payload?: any, showLoading?: 'model' | 'global') => Promise<Partial<M>> | Promise<void>,
+    doFunction: (fn: Function, showLoading?: 'model' | 'global')=>void,
     /**the function to reset model to it's initial state when you defined it */
     resetModel: () => void
 } {
@@ -86,7 +87,8 @@ export function useModel<M extends Model = Model>(model: M): {
      * @param showLoading whether showloading, possible value is 'model' | 'global' . default=undefined, 'global' means show global loading; and 'model' means only change the loading flag for this model
      */
     const doAction = (action: Action<M>, payload: any = undefined, showLoading?: 'model' | 'global') => inQueue(action, payload, modelKey, showLoading)
-    return { store: store[modelKey], doAction, resetModel: () => doAction(() => m) }
+    const doFunction = (fn: Function, showLoading?: 'model' | 'global')=> doAction(async ()=>justBack(await fn()), null, showLoading) 
+    return { store: store[modelKey], doAction, doFunction, resetModel: () => doAction(() => m) }
 }
 /**get the loading state of given model, if don't provide model param, then will return the global loading state */
 export function useLoading<M extends Model>(m?: M): boolean {

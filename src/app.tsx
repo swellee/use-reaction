@@ -35,7 +35,7 @@ function GlobalLoading(props: KV) {
 
 //--------examples of how to use---------
 function SubPageA(props?: KV) {
-    const { store, doAction } = useModel(model_a)
+    const { store, doAction, doFunction } = useModel(model_a)
     const { store: storeB, doAction: doActionB } = useModel(model_b)
 
     const onfinish = async (values: any) => {
@@ -60,7 +60,11 @@ function SubPageA(props?: KV) {
             </Form>
             <button onClick={async e => {
                 const backed = await doActionB(actionJustBackData, ',world:' + Date.now())
+                const testFn = await doFunction(async()=>{
+                    return 'testFn'
+                }, 'global')
                 alert(backed)
+                console.log(testFn)
             }}>just back data</button>
         </div>
 
