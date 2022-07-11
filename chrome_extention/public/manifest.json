@@ -1,6 +1,6 @@
 {
     "name": "UseReaction Devtools",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "description": "chrome extention devtools for UseReaction ",
     "manifest_version": 2,
     "icons": {
