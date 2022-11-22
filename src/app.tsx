@@ -3,7 +3,6 @@ import { KV, useLoading, useModel, useProvider, useReaction } from "./lib/useRea
 import { actionTestA, model_a } from './models/model_a';
 import { actionJustBackData, actionTestB, model_b } from './models/model_b';
 import { Button, Form, Input, Spin } from 'antd'
-import Password from 'antd/lib/input/Password';
 import 'antd/dist/antd.css'
 import './app.css'
 export const App: React.FC = () => {
@@ -55,7 +54,7 @@ function SubPageA(props?: KV) {
             </div>
             <Form onFinish={onfinish}>
                 <Form.Item label="email" name="email"><Input /></Form.Item>
-                <Form.Item label="password" name="password"><Password /></Form.Item>
+                <Form.Item label="password" name="password"><Input.Password /></Form.Item>
                 <Button htmlType="submit">increase A with global loading</Button>
             </Form>
             <button onClick={async e => {

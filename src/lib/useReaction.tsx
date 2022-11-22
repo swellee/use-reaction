@@ -11,6 +11,7 @@ const global: any = { init: { [LOADING_TAG]: false } }
 const queue: { action: Action<any>, modelKey: string, payload?: any, callback?: (res?: any) => void, isloading?: boolean }[] = []
 /** call this at the top line of your app to initialize, provide a 'true' param if you want to enable devtool, Note: it's better not enable devtool for your production mode */
 export function useReaction(enableDev?: boolean, strict?: boolean) {
+    if(global.ctx)return;
     global.strict = strict
     global.ctx = global.ctx || createContext(null)
     enableDev && document && window.postMessage({ __USE_REACTION_DEV_ENABLED__: true }, '*')
