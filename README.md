@@ -60,7 +60,10 @@ npm i use-reaction
    ----
 4. `useLoading` - retrieve the loading flag(true/false) of given model-instance, if not provide model, then it will return the global loading flag, this flag will change when call `doAction(someAction, payload, 'model' | 'global')`
     - ----
-5. `justBack` - sometimes, your action don't want to modify the model store, just want to process sth and return the data back to UI level, then you can use this api to wrap your return data, so that the return data of your action won't trigger modify and won't trigger rerender, like this:
+5. `setLoading` - NOT recommended to use! you'd better trigger loading by call doAction or doFunction.
+This function might be usefull where need to mark global loading in non-UI section, eg. within fetch or axios call
+    - ----
+6. `justBack` - sometimes, your action don't want to modify the model store, just want to process sth and return the data back to UI level, then you can use this api to wrap your return data, so that the return data of your action won't trigger modify and won't trigger rerender, like this:
     ```typescript
     export const actionJustBackData: Action<typeof model_b> = async function({ payload }) {
         ... do process task ...

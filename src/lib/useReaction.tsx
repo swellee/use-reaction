@@ -98,6 +98,18 @@ export function useLoading<M extends Model>(m?: M): boolean {
     return m && m[MODEL_KEY_TAG] ? Boolean(store[m[MODEL_KEY_TAG]][LOADING_TAG]) : store[LOADING_TAG]
 }
 /**
+ * NOT recommended to use, you'd better trigger loading by call doAction or doFunction
+ * This function might be usefull where need to mark global loading in non-UI section, eg. within fetch or axios call
+ * @param loading boolean
+ * @param m set the loading(true/false) of specific model, if not provide, then set global loading
+ */
+export function setLoading(loading: boolean, m?: Model){
+    const { store, dispatch } = global;
+    const modelKey = m?.[MODEL_KEY_TAG]; 
+    const model = !!modelKey? store[m[MODEL_KEY_TAG]] : store;
+    dispatch({...store, ...(modelKey? {[modelKey]: {...model, [LOADING_TAG]:loading }} : {[LOADING_TAG]: loading})});
+}
+/**
  * use this in your action function to just return data without modify model, won't trigger rerender
  * @param data the data to return outter
  */
