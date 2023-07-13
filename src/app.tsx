@@ -88,10 +88,10 @@ function SubPageA(props?: KV) {
 }
 function SubPageB(props: KV) {
   const { store, doAction } = useModel(model_b);
-  const loading = useLoading(model_b);
+  const {loading, tip} = useLoadingTip(model_b);
   console.log("model render loading", loading);
   return (
-    <Spin spinning={loading}>
+    <Spin spinning={loading} tip={tip}>
       <div className="page page-b">
         <h3>page B</h3>
         <div>value B is {store.b}</div>
