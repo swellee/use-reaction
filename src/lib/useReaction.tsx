@@ -7,7 +7,7 @@ const LOADING_TAG = 'USE::REACTION::BUILTIN:LOADING'
 const MODEL_KEY_PRE = 'USE::REACTION::MODULE::'
 const MODEL_KEY_TAG = '__MODULE__'
 const BACK_TAG = 'USE::REACTION::JUSTBACK::'
-const global: any = { init: { [LOADING_TAG]: false } }
+const global: any = { init: { [LOADING_TAG]: {loading: false} } }
 const queue: { action: Action<any>, modelKey: string, payload?: any, callback?: (res?: any) => void, isloading?: boolean }[] = []
 /** call this at the top line of your app to initialize, provide a 'true' param if you want to enable devtool, Note: it's better not enable devtool for your production mode */
 export function useReaction(enableDev?: boolean, strict?: boolean) {
@@ -23,16 +23,16 @@ export function useReaction(enableDev?: boolean, strict?: boolean) {
 }
 /** call this to get the root Provider to wrap your app */
 export const useProvider = () => global.provider
-function inQueue<M extends Model>(action: Action<M>, payload: any, modelKey: string, loading?: 'model' | 'global'): Promise<any> {
+function inQueue<M extends Model>(action: Action<M>, payload: any, modelKey: string, loading?: 'model' | 'global', loadingTip?: string): Promise<any> {
     return new Promise<any>(_ => {
         let readyNum = 1
         if (loading) {
             readyNum = 3
-            queue.push({ action: () => ({ [LOADING_TAG]: true }), modelKey: loading === 'global' ? GLOBAL_KEY : modelKey, isloading: true })
+            queue.push({ action: () => ({ [LOADING_TAG]: {loading: true, tip:loadingTip} }), modelKey: loading === 'global' ? GLOBAL_KEY : modelKey, isloading: true })
         }
         queue.push({ action, modelKey, payload, callback: _ })
         if (loading) {
-            queue.push({ action: () => ({ [LOADING_TAG]: false }), modelKey: loading === 'global' ? GLOBAL_KEY : modelKey, isloading: true })
+            queue.push({ action: () => ({ [LOADING_TAG]: {loading:false} }), modelKey: loading === 'global' ? GLOBAL_KEY : modelKey, isloading: true })
         }
         queue.length === readyNum && nextAction()
     })
@@ -67,10 +67,15 @@ async function nextAction() {
 export function useModel<M extends Model = Model>(model: M): {
     /**the store of this model */
     store: M
-    /**the function to trigger action for this model, pls Note that it won't affect other models */
-    doAction: (action: Action<M>, payload?: any, showLoading?: 'model' | 'global') => Promise<Partial<M>> | Promise<void>,
+     /**
+     * action trigger
+     * @param action the action-like function
+     * @param payload the payload which will pass to action-function
+     * @param showLoading whether showloading, possible value is 'model' | 'global' . default=undefined, 'global' means show global loading; and 'model' means only change the loading flag for this model
+     */
+    doAction: (action: Action<M>, payload?: any, showLoading?: 'model' | 'global', loadingTip?: string) => Promise<Partial<M>> | Promise<void>,
     /** a convenient trigger to execute freedom function in action queue, and optional trigger loading, but won't affect model data */
-    doFunction: (fn: Function, showLoading?: 'model' | 'global')=> any,
+    doFunction: (fn: Function, showLoading?: 'model' | 'global', loadingTip?: string)=> any,
     /**the function to reset model to it's initial state when you defined it */
     resetModel: () => void
 } {
@@ -82,32 +87,28 @@ export function useModel<M extends Model = Model>(model: M): {
         store[modelKey] = { ...m };
         (window as any)['__USE_REACTION_DEV_EXTENTION__'] && (window as any)['__USE_REACTION_DEV_EXTENTION__'](store)
     }
-    /**
-     * action trigger
-     * @param action the action-like function
-     * @param payload the payload which will pass to action-function
-     * @param showLoading whether showloading, possible value is 'model' | 'global' . default=undefined, 'global' means show global loading; and 'model' means only change the loading flag for this model
-     */
-    const doAction = (action: Action<M>, payload: any = undefined, showLoading?: 'model' | 'global') => inQueue(action, payload, modelKey, showLoading)
-    const doFunction = (fn: Function, showLoading?: 'model' | 'global')=> doAction(async ()=>justBack(await fn()), null, showLoading) 
+    const doAction = (action: Action<M>, payload: any = undefined, showLoading?: 'model' | 'global', loadingTip?: string) => inQueue(action, payload, modelKey, showLoading, loadingTip)
+    const doFunction = (fn: Function, showLoading?: 'model' | 'global', loadingTip?: string)=> doAction(async ()=>justBack(await fn()), null, showLoading, loadingTip) 
     return { store: store[modelKey], doAction, doFunction, resetModel: () => doAction(() => m) }
 }
-/**get the loading state of given model, if don't provide model param, then will return the global loading state */
-export function useLoading<M extends Model>(m?: M): boolean {
+export function useLoadingTip<M extends Model>(m?: M): { loading: boolean, tip?: string } {
     const { store } = useContext(global.ctx) || global
-    return m && m[MODEL_KEY_TAG] ? Boolean(store[m[MODEL_KEY_TAG]][LOADING_TAG]) : store[LOADING_TAG]
+    return m && m[MODEL_KEY_TAG] ? store[m[MODEL_KEY_TAG]][LOADING_TAG] : store[LOADING_TAG]
 }
+/**get the loading state of given model, if don't provide model param, then will return the global loading state */
+export const useLoading= <M extends Model>(m?: M)=> Boolean(useLoadingTip(m)?.loading);
 /**
  * NOT recommended to use, you'd better trigger loading by call doAction or doFunction
  * This function might be usefull where need to mark global loading in non-UI section, eg. within fetch or axios call
  * @param loading boolean
+ * @param tip loading tip, you can use this text to display the processing hint
  * @param m set the loading(true/false) of specific model, if not provide, then set global loading
  */
-export function setLoading(loading: boolean, m?: Model){
+export function setLoading(loading: boolean, tip?: string, m?: Model){
     const { store, dispatch } = global;
     const modelKey = m?.[MODEL_KEY_TAG]; 
     const model = !!modelKey? store[m[MODEL_KEY_TAG]] : store;
-    dispatch({...store, ...(modelKey? {[modelKey]: {...model, [LOADING_TAG]:loading }} : {[LOADING_TAG]: loading})});
+    dispatch({...store, ...(modelKey? {[modelKey]: {...model, [LOADING_TAG]:{loading, tip} }} : {[LOADING_TAG]: {loading, tip}})});
 }
 /**
  * use this in your action function to just return data without modify model, won't trigger rerender

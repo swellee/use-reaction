@@ -3,6 +3,7 @@ import {
   KV,
   setLoading,
   useLoading,
+  useLoadingTip,
   useModel,
   useProvider,
   useReaction,
@@ -34,9 +35,9 @@ export const App: React.FC = () => {
 };
 
 function GlobalLoading(props: KV) {
-  const loading = useLoading();
+  const {loading, tip} = useLoadingTip();
   console.log("loading:", loading);
-  return <Spin spinning={loading}>{props.children}</Spin>;
+  return <Spin spinning={loading} tip={tip}>{props.children}</Spin>;
 }
 
 //--------examples of how to use---------
@@ -79,7 +80,7 @@ function SubPageA(props?: KV) {
       >
         just back data
       </button>
-      <button onClick={(e) => setLoading(!loading, model_b)}>
+      <button onClick={(e) => setLoading(!loading, 'gogogo',model_b)}>
         set model_B loading(not recommended)
       </button>
     </div>
@@ -139,7 +140,7 @@ function CompC() {
       <button onClick={resetModelB}>reset model_b</button>
       <button onClick={(e) => doAction(actionTestA, null, "global")}>
         {" "}
-        do loading
+        do global loading
       </button>
     </div>
   );
