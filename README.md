@@ -38,8 +38,9 @@ npm i use-reaction
       - ***action*** - the function (normal or PromiseLike), which can return changed part of model's Interface, or return nothing, or return `justBack(data)` to avoid modify store
       - ***payload*** - the paload which will pass to the ***action*** function,
       - ***showLoading*** - whether showloading when process this action, you can pass param ***model*** or ***global*** and, `model` means change loading state for this model-store, `global` means change loading for global, default undefined, see `useLoading`
+      - ***loadingTip*** - optional loading tip text. 
       - Note: the doAction is an async function, and will return what the ***action*** function's return-data, so you can get the result-data of the ***action*** function
-      - Note: each doAction call will be serialized into queue, so, if your can ***doAction*** multi-times, it will finish one by one!!
+      - Note: each doAction call will be serialized into queue, so, if your call ***doAction*** multi-times, it will finish one by one!!
       - Note: if error occur during this action. framework will print error message to console, and ignore this action, then try to excute next action in the queue.
    3. `doFunction` - the trigger to call what you like function, it won't affect model data, but can use the model/global loading.
         - eg. in your logic, you have ***actionA***, and ***actionB***, later, you want to call api to check sth before ***actionB**, 
@@ -58,12 +59,15 @@ npm i use-reaction
         ```
    4. `resetModel` - the trigger for reset the given model to its initial state when it's defined
    ----
-4. `useLoading` - retrieve the loading flag(true/false) of given model-instance, if not provide model, then it will return the global loading flag, this flag will change when call `doAction(someAction, payload, 'model' | 'global')`
+
+4. `useLoadingTip`- retrive the loading-flag(true/false) and loading-tip of given model-instance, if not provide model, then it will return the global loading flag, this flag and tip will change when call `doAction(someAction, payload, 'model' | 'global', loadingTip?)` [added since v1.3.0]
+
+5. `useLoading` - a simplified alias of `useLoadingTip`, while this one only retrieve the loading-flag(true/false) of given model-instance, if not provide model, then it will return the global loading flag, this flag will change when call `doAction(someAction, payload, 'model' | 'global')`
     - ----
-5. `setLoading` - NOT recommended to use! you'd better trigger loading by call doAction or doFunction.
-This function might be usefull where need to mark global loading in non-UI section, eg. within fetch or axios call
+6. `setLoading` - NOT recommended to use! you'd better trigger loading by call doAction or doFunction.
+This function might be usefull where need to mark model or global loading in non-UI section, eg. within fetch or axios call. [added since v1.3.0]
     - ----
-6. `justBack` - sometimes, your action don't want to modify the model store, just want to process sth and return the data back to UI level, then you can use this api to wrap your return data, so that the return data of your action won't trigger modify and won't trigger rerender, like this:
+7. `justBack` - sometimes, your action don't want to modify the model store, just want to process sth and return the data back to UI level, then you can use this api to wrap your return data, so that the return data of your action won't trigger modify and won't trigger rerender, like this:
     ```typescript
     export const actionJustBackData: Action<typeof model_b> = async function({ payload }) {
         ... do process task ...
@@ -103,7 +107,7 @@ This function might be usefull where need to mark global loading in non-UI secti
     like this:
     ```typescript
        export const model_a: ModelA = {
-          NAME: 'model_a', // optional, but it's better have a 'NAME' prop, then devtool can display a better way.
+          NAME: 'model_a', // optional, but it's better have a 'NAME' prop, then devtool can display this specific name.
           a: 1,
           aa: {
               aa: 1
@@ -189,10 +193,10 @@ This function might be usefull where need to mark global loading in non-UI secti
     }
     function SubPageB(props: KV) {
         const { store, doAction } = useModel(model_b)
-        const loading = useLoading(model_b)
+        const {loading, tip} = useLoadingTip(model_b)
         console.log('model render loading', loading)
         return (
-            <Spin spinning={loading}>
+            <Spin spinning={loading} tip={tip}>
 
                 <div className="page page-b">
                     <h3>page B</h3>
